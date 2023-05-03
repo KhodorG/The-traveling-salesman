@@ -3,7 +3,7 @@
 #include <omp.h>
 #include <time.h>
 
-#define MAX_CITIES 5000
+#define MAX_CITIES 1000
 
 int main(int argc, char *argv[]) {
     int i, j, n, total_cost = 0, cost;
