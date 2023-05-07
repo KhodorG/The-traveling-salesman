@@ -4,7 +4,7 @@
 
 #define MAX_CITIES 5000
 #define THREADS_PER_BLOCK 512
-#defin MAX_DISTANCE 100
+#define MAX_DISTANCE 100
 
 __global__ void calculate_minimum_cost(int *d_cities, int n, int *d_min_cost)
 {
