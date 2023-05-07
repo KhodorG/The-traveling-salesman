@@ -3,7 +3,8 @@
 #include <mpi.h>
 #include <time.h>
 
-#define MAX_CITIES 15000
+#define MAX_CITIES 10000
+#define MAX_DISTANCE 100
 
 int main(int argc, char *argv[]) {
     int rank, size, i, j, n, total_cost = 0, cost;
@@ -17,7 +18,7 @@ int main(int argc, char *argv[]) {
     double start_time = MPI_Wtime();
 
     if (rank == 0) {
-        printf("Enter the number of cities: ");
+        printf("Enter the number of cities (max %d): ", MAX_CITIES);
         scanf("%d", &n);
 
         cities = (int **) malloc(n * sizeof(int *));
@@ -25,15 +26,12 @@ int main(int argc, char *argv[]) {
             cities[i] = (int *) malloc(n * sizeof(int));
         }
 
-        srand((unsigned)time(NULL));
-
-        printf("Randomly generating distances between cities...\n");
         for (i = 0; i < n; i++) {
             for (j = i; j < n; j++) {
                 if (i == j) {
                     cities[i][j] = 0;
                 } else {
-                    cities[i][j] = cities[j][i] = rand() % 100;
+                    cities[i][j] = cities[j][i] = MAX_DISTANCE;
                 }
             }
         }
