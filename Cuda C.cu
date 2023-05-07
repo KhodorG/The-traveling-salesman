@@ -58,7 +58,7 @@ int main()
             if (i == j) {
                 cities[i * n + j] = 0;
             } else {
-                cities[i * n + j] = cities[j * n + i] = MAX_DISTANCE; // Fixed distance of 100 between cities
+                cities[i * n + j] = cities[j * n + i] = MAX_DISTANCE; // Fixed distance of 10 between cities
             }
         }
     }
@@ -102,3 +102,4 @@ int main()
 
     return 0;
 }
+
