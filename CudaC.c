@@ -1,11 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 #include <cuda_runtime.h>
 
-#define MAX_CITIES 2000
+#define MAX_CITIES 5000
 #define THREADS_PER_BLOCK 512
-#define BLOCK_SIZE 32
+#defin MAX_DISTANCE 100
 
 __global__ void calculate_minimum_cost(int *d_cities, int n, int *d_min_cost)
 {
@@ -53,14 +52,13 @@ int main()
     // Allocate memory for cities
     cities = (int *)malloc(n * n * sizeof(int));
 
-    // Generate distances between cities
-    srand(time(NULL));
+    // Initialize distances between cities
     for (int i = 0; i < n; i++) {
         for (int j = i; j < n; j++) {
             if (i == j) {
                 cities[i * n + j] = 0;
             } else {
-                cities[i * n + j] = cities[j * n + i] = rand() % 100;
+                cities[i * n + j] = cities[j * n + i] = MAX_DISTANCE; // Fixed distance of 10 between cities
             }
         }
     }
@@ -74,14 +72,20 @@ int main()
     cudaMemcpy(d_min_cost, &min_cost, sizeof(int), cudaMemcpyHostToDevice);
 
     // Get start time
-    clock_t start_time = clock();
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+    cudaEventRecord(start, 0);
 
     // Launch kernel
     int num_blocks = (n + THREADS_PER_BLOCK - 1) / THREADS_PER_BLOCK;
     calculate_minimum_cost<<<num_blocks, THREADS_PER_BLOCK>>>(d_cities, n, d_min_cost);
 
     // Get end time
-    clock_t end_time = clock();
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
+    float elapsed_time;
+    cudaEventElapsedTime(&elapsed_time, start, stop);
 
     // Copy minimum cost from device to host
     cudaMemcpy(&min_cost, d_min_cost, sizeof(int), cudaMemcpyDeviceToHost);
@@ -89,7 +93,7 @@ int main()
     total_cost = min_cost;
 
     printf("The minimum cost is %d\n", total_cost);
-    printf("Time taken: %f seconds\n", (double)(end_time - start_time) / CLOCKS_PER_SEC);
+    printf("Time taken: %f seconds\n", elapsed_time / 1000.0);
 
     // Free memory
     free(cities);
