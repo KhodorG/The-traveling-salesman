@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <cuda_runtime.h>
 
-#define MAX_CITIES 5000
-#define THREADS_PER_BLOCK 512
+#define MAX_CITIES 10000
+#define THREADS_PER_BLOCK 128
 #define MAX_DISTANCE 100
 
 __global__ void calculate_minimum_cost(int *d_cities, int n, int *d_min_cost)
@@ -44,21 +44,30 @@ __global__ void calculate_minimum_cost(int *d_cities, int n, int *d_min_cost)
 
 int main()
 {
-    int n = MAX_CITIES;
+    int n;
     int *cities;
     int min_cost = 99999999, total_cost;
     int *d_cities, *d_min_cost;
 
+    // Prompt user to input the number of cities
+    printf("Enter the number of cities: ");
+    scanf("%d", &n);
+
+    if (n > MAX_CITIES) {
+        fprintf(stderr, "Error: Maximum number of cities is %d\n", MAX_CITIES);
+        return 1;
+    }
+
     // Allocate memory for cities
     cities = (int *)malloc(n * n * sizeof(int));
 
-    // Initialize distances between cities
+    // Initialize distances between cities to MAX_DISTANCE
     for (int i = 0; i < n; i++) {
         for (int j = i; j < n; j++) {
             if (i == j) {
                 cities[i * n + j] = 0;
             } else {
-                cities[i * n + j] = cities[j * n + i] = MAX_DISTANCE; // Fixed distance of 10 between cities
+                cities[i * n + j] = cities[j * n + i] = MAX_DISTANCE;
             }
         }
     }
@@ -102,4 +111,3 @@ int main()
 
     return 0;
 }
-
